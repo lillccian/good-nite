@@ -9,4 +9,5 @@
 #
 class User < ApplicationRecord
   has_many :access_tokens
+  has_many :sleep_records
 end
