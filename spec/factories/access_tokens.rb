@@ -10,6 +10,6 @@
 #
 FactoryBot.define do
   factory :access_token do
-
+    association :user, factory: [:user]
   end
 end
