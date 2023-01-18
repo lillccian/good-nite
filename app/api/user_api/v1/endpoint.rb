@@ -4,6 +4,8 @@ module UserApi
       version 'v1', using: :path
       format :json
 
+      use Auth::Middleware
+
       desc '用來測試服務是否活著'
       get :ping do
         { data: { now: Time.zone.now.iso8601 } }
