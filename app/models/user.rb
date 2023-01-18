@@ -9,7 +9,7 @@
 #
 class User < ApplicationRecord
   has_many :access_tokens
-  has_many :sleep_records
+  has_many :sleep_records, -> { order(:created_at) }
 
   # follower
   has_many :followed_follows, class_name: 'Follow', foreign_key: :following_id, inverse_of: :following, dependent: :delete_all
