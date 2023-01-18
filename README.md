@@ -1,6 +1,6 @@
 # Todo
 
-==========================================
+---
 
 We would like you to implement a "good night" application to let users track when do they go to bed and when do they wake up.
 
@@ -17,10 +17,10 @@ You do not need to implement any user registration API.
 
 You can use any gems you like.
 
-==========================================
+---
 
 ## Model
-
+---
 #### User
 ```
 
@@ -78,17 +78,19 @@ You can use any gems you like.
 
 ```
 
-
 ## Api Endpoint
-```
-    GET  |  /:version/ping(.json)                      |  v1  |
-    GET  |  /:version/sleep_records/ping(.json)        |  v1  |
-   POST  |  /:version/sleep_records(.json)             |  v1  |  create sleep record
-    GET  |  /:version/sleep_records(.json)             |  v1  |  get sleep records
-    GET  |  /:version/sleep_records/:id(.json)         |  v1  |  get sleep record
-    PUT  |  /:version/sleep_records/:id(.json)         |  v1  |  update sleep record
- DELETE  |  /:version/sleep_records/:id(.json)         |  v1  |  delete sleep record
-   POST  |  /:version/users/:id/follow(.json)          |  v1  |  follow user
-   POST  |  /:version/users/:id/unfollow(.json)        |  v1  |  unfollow user
-    GET  |  /:version/followings/sleeping_time(.json)  |  v1  |  get followings sleep time
-```
+
+|method|path|desc|
+|---|---|---|
+|    GET  |  /api/v1/ping                      |  test server health  |
+|    GET  |  /api/v1/sleep_records/ping        |  test server health  |
+|   POST  |  /api/v1/sleep_records             |  create sleep record  |
+|    GET  |  /api/v1/sleep_records             |  get sleep records  |
+|    GET  |  /api/v1/sleep_records/:id         |  get sleep record  |
+|    PUT  |  /api/v1/sleep_records/:id         |  update sleep record  |
+| DELETE  |  /api/v1/sleep_records/:id         |  delete sleep record  |
+|   POST  |  /api/v1/users/:id/follow          |  follow user  |
+|   POST  |  /api/v1/users/:id/unfollow        |  unfollow user  |
+|    GET  |  /api/v1/followings/sleeping_time  |  get followings sleep time  |
+
+
