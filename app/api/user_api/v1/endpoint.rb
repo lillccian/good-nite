@@ -15,6 +15,7 @@ module UserApi
         { data: { now: Time.zone.now.iso8601 } }
       end
 
+      mount SleepRecords
     end
   end
 end
