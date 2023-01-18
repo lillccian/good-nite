@@ -17,6 +17,7 @@ module UserApi
 
       mount SleepRecords
       mount Users
+      mount Followings
     end
   end
 end
