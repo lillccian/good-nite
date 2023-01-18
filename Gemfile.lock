@@ -217,6 +217,7 @@ GEM
     sqlite3 (1.5.4-arm64-darwin)
     thor (1.2.1)
     tilt (2.0.11)
+    timecop (0.9.4)
     timeout (0.3.1)
     turbolinks (5.2.1)
       turbolinks-source (~> 5.2)
@@ -254,6 +255,7 @@ DEPENDENCIES
   sass-rails (>= 6)
   spring
   sqlite3 (~> 1.4)
+  timecop
   turbolinks (~> 5)
   tzinfo-data
   web-console (>= 4.1.0)
