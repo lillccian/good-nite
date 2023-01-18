@@ -4,14 +4,18 @@ module UserApi
       version 'v1', using: :path
       format :json
 
+      include ExceptionHandlers
+
+      use Auth::Middleware
+
+      helpers Helpers
+
       desc '用來測試服務是否活著'
       get :ping do
         { data: { now: Time.zone.now.iso8601 } }
       end
 
-      route :any, '*path' do
-        error!({ message: 'Not Found' }, 404)
-      end
+      mount SleepRecords
     end
   end
 end
