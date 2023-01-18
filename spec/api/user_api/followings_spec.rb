@@ -1,9 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe UserApi::V1::Followings do
-  let(:token) { create(:access_token) }
-  let(:user) { token.user }
-  let(:params) { { access_token: token.token } }
+  let!(:user) { @current_user = create(:user) }
 
   describe 'user following' do
     context 'GET /sleeping_time' do
@@ -22,7 +20,7 @@ RSpec.describe UserApi::V1::Followings do
         }
 
         it 'should return 201 and data' do
-          get "/api/v1/followings/sleeping_time", params: params
+          auth_user_api_request :get, '/api/v1/followings/sleeping_time'
           result = JSON.parse(response.body)
 
           data = user.followings.map{|u| { 'id' => u.id, 'name' => u.name, 'total_time' => u.sleep_records.sum(:sleeping_time)} }.sort_by{|data| data['total_time']}.reverse
@@ -33,13 +31,13 @@ RSpec.describe UserApi::V1::Followings do
           last_user.sleep_records.create(start_at: 10.days.ago, end_at: 9.days.ago)
         end
         it 'only calculate pass week' do
-          get "/api/v1/followings/sleeping_time", params: params
+          auth_user_api_request :get, '/api/v1/followings/sleeping_time'
           result1 = JSON.parse(response.body)
 
           last_user = User.find result1['data'][-1]['id']
           last_user.sleep_records.create(start_at: 20.days.ago, end_at: 10.days.ago)
 
-          get "/api/v1/followings/sleeping_time", params: params
+          auth_user_api_request :get, '/api/v1/followings/sleeping_time'
           result2 = JSON.parse(response.body)
 
           expect(result1['data']).to eq result2['data']

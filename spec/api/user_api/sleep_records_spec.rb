@@ -2,15 +2,14 @@ require 'rails_helper'
 
 RSpec.describe UserApi::V1::SleepRecords do
   let(:now) { Time.current }
-  let(:token) { create(:access_token) }
-  let(:user) { token.user }
+  let!(:user) { @current_user = create(:user) }
   let(:other_user) { create(:user) }
 
   before{ Timecop.freeze now }
 
   context 'without authenticate!' do
     it 'should return 401 and error' do
-      get '/api/v1/sleep_records/ping'
+      user_api_request :get, '/api/v1/sleep_records/ping'
       result = JSON.parse(response.body)
 
       expect(response.status).to eq(401)
@@ -20,7 +19,7 @@ RSpec.describe UserApi::V1::SleepRecords do
 
   context 'GET /api/v1/sleep_records/ping' do
     it 'should return 200 and Time' do
-      get '/api/v1/sleep_records/ping', params: { access_token: token.token }
+      auth_user_api_request :get, '/api/v1/sleep_records/ping'
 
       expect(response.status).to eq(200)
       expect(JSON.parse(response.body)['data']['now']).to eq(now.iso8601)
@@ -28,25 +27,25 @@ RSpec.describe UserApi::V1::SleepRecords do
   end
 
   describe 'sleep_records api' do
-    let(:params) { { access_token: token.token } }
+    let(:params) { {} }
     let(:record) { create(:sleep_record, user: user) }
 
     context 'get /api/v1/sleep_records' do
       context 'success' do
         it 'get records data, but empty' do
-          get '/api/v1/sleep_records', params: params
+          auth_user_api_request :get, '/api/v1/sleep_records'
           result = JSON.parse(response.body)
 
           expect(response.status).to eq(200)
         end
         it 'get record data' do
           record
-          get '/api/v1/sleep_records', params: params
+          auth_user_api_request :get, '/api/v1/sleep_records'
           result = JSON.parse(response.body)
 
           expect(response.status).to eq(200)
           expect(result[0]['id']).to eq SleepRecord.last.id
-          expect(result[0]['user_id']).to eq token.user.id
+          expect(result[0]['user_id']).to eq user.id
           expect(result[0]['start_at']).to eq SleepRecord.last.start_at.iso8601
           expect(result[0]['end_at']).to eq SleepRecord.last.end_at.iso8601
           expect(result[0]['sleeping_time']).to eq SleepRecord.last.sleeping_time
@@ -57,12 +56,12 @@ RSpec.describe UserApi::V1::SleepRecords do
     context 'get /api/v1/sleep_records/:id' do
       context 'success' do
         it 'get record data' do
-          get "/api/v1/sleep_records/#{record.id}", params: params
+          auth_user_api_request :get, "/api/v1/sleep_records/#{record.id}"
           result = JSON.parse(response.body)
 
           expect(response.status).to eq(200)
           expect(result['id']).to eq SleepRecord.last.id
-          expect(result['user_id']).to eq token.user.id
+          expect(result['user_id']).to eq user.id
           expect(result['start_at']).to eq SleepRecord.last.start_at.iso8601
           expect(result['end_at']).to eq SleepRecord.last.end_at.iso8601
           expect(result['sleeping_time']).to eq SleepRecord.last.sleeping_time
@@ -70,7 +69,7 @@ RSpec.describe UserApi::V1::SleepRecords do
       end
       context 'failed' do
         it 'record not found' do
-          get "/api/v1/sleep_records/#{record.id}123", params: params
+          auth_user_api_request :get, "/api/v1/sleep_records/#{record.id}123"
           result = JSON.parse(response.body)
 
           expect(response.status).to eq(404)
@@ -80,7 +79,7 @@ RSpec.describe UserApi::V1::SleepRecords do
     end
 
     context 'post /api/v1/sleep_records' do
-      subject { post '/api/v1/sleep_records', params: params }
+      subject { auth_user_api_request :post, '/api/v1/sleep_records', params: params }
 
       context 'success' do
         before{
@@ -99,7 +98,7 @@ RSpec.describe UserApi::V1::SleepRecords do
           result = JSON.parse(response.body)
 
           expect(result['id']).to eq SleepRecord.last.id
-          expect(result['user_id']).to eq token.user.id
+          expect(result['user_id']).to eq user.id
           expect(result['start_at']).to eq SleepRecord.last.start_at.iso8601
           expect(result['end_at']).to eq SleepRecord.last.end_at.iso8601
           expect(result['sleeping_time']).to eq SleepRecord.last.sleeping_time
@@ -162,7 +161,7 @@ RSpec.describe UserApi::V1::SleepRecords do
     end
 
     context 'put /api/v1/sleep_records/:id' do
-      subject { put "/api/v1/sleep_records/#{record.id}", params: params }
+      subject { auth_user_api_request :put, "/api/v1/sleep_records/#{record.id}", params: params }
       context 'success' do
         it 'get record data' do
           time = 1.day.ago
@@ -178,7 +177,7 @@ RSpec.describe UserApi::V1::SleepRecords do
       end
       context 'failed' do
         it 'record not found' do
-          put "/api/v1/sleep_records/#{record.id}123", params: params
+          auth_user_api_request :put, "/api/v1/sleep_records/#{record.id}123", params: params
           result = JSON.parse(response.body)
 
           expect(response.status).to eq(404)
@@ -199,7 +198,7 @@ RSpec.describe UserApi::V1::SleepRecords do
     context 'delete /api/v1/sleep_records/:id' do
       context 'success' do
         it 'get response' do
-          delete "/api/v1/sleep_records/#{record.id}", params: params
+          auth_user_api_request :delete, "/api/v1/sleep_records/#{record.id}"
           result = JSON.parse(response.body)
 
           expect(response.status).to eq(200)
@@ -208,7 +207,7 @@ RSpec.describe UserApi::V1::SleepRecords do
       end
       context 'failed' do
         it 'record not found' do
-          delete "/api/v1/sleep_records/#{record.id}123", params: params
+          auth_user_api_request :delete, "/api/v1/sleep_records/#{record.id}123"
           result = JSON.parse(response.body)
 
           expect(response.status).to eq(404)
