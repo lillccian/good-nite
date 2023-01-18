@@ -5,7 +5,7 @@ RSpec.describe UserApi::V1::Endpoint do
     it 'should return 200 and Time' do
       time = Time.current
       Timecop.freeze time
-      get '/api/v1/ping'
+      user_api_request :get, '/api/v1/ping'
 
       expect(response.status).to eq(200)
       expect(JSON.parse(response.body)['data']['now']).to eq(time.iso8601)
@@ -13,7 +13,7 @@ RSpec.describe UserApi::V1::Endpoint do
   end
   context 'wrong path' do
     it 'should return 404' do
-      get '/api/v1/error_path'
+      user_api_request :get, '/api/v1/error_path'
 
       expect(response.status).to eq(404)
     end

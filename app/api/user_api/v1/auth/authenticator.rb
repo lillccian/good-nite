@@ -5,6 +5,7 @@ module UserApi
         def initialize(request, params)
           @request = request
           @params  = params
+          @headers = request.headers
         end
 
         def authenticate!
@@ -13,11 +14,14 @@ module UserApi
         end
 
         def check_token!
-          return @params[:access_token] unless token
+          return @headers['Authorization'] unless token
         end
 
         def token
-          @token = AccessToken.joins(:user).where(token: @params[:access_token]).first
+          return nil unless @headers['Authorization']&.match?(/Bearer ([\w|-]+)/)
+
+          auth_token = @headers['Authorization'].match(/Bearer ([\w|-]+)/)[1]
+          @token = AccessToken.joins(:user).where(token: auth_token).first
         end
       end
     end
