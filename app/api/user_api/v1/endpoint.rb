@@ -4,6 +4,8 @@ module UserApi
       version 'v1', using: :path
       format :json
 
+      include ExceptionHandlers
+
       use Auth::Middleware
 
       desc '用來測試服務是否活著'
@@ -11,9 +13,6 @@ module UserApi
         { data: { now: Time.zone.now.iso8601 } }
       end
 
-      route :any, '*path' do
-        error!({ message: 'Not Found' }, 404)
-      end
     end
   end
 end
