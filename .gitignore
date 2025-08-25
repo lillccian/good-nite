@@ -30,7 +30,6 @@
 /public/assets
 .byebug_history
 
-/db/schema.rb
 /coverage/
 
 # Ignore master key for decrypting credentials and more.
