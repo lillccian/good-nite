@@ -33,3 +33,17 @@ We want to see all of your development commits.
 - In Tripla, it is not a good practice to have one commit with a lot of changes.
 
 Please ensure that you have granted permission for Google Meet to share your screen, as we may need you to do so during the meeting
+
+## Api Endpoint
+
+|method|path|desc|
+|---|---|---|
+|    GET  |  /api/v1/ping                      |  test server health  |
+|   POST  |  /api/v1/sleep_records             |  create sleep record, return all sleep records  |
+|    GET  |  /api/v1/sleep_records             |  get sleep records  |
+|    GET  |  /api/v1/sleep_records/:id         |  get sleep record  |
+|    PUT  |  /api/v1/sleep_records/:id         |  update sleep record  |
+| DELETE  |  /api/v1/sleep_records/:id         |  delete sleep record  |
+|   POST  |  /api/v1/users/:id/follow          |  follow user  |
+|   POST  |  /api/v1/users/:id/unfollow        |  unfollow user  |
+|    GET  |  /api/v1/followings/sleeping_time  |  get followings sleep time  |
