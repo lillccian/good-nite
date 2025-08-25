@@ -19,28 +19,27 @@ RSpec.describe UserApi::V1::Followings do
           end
         }
 
-        it 'should return 201 and data' do
+        it 'should return data' do
           auth_user_api_request :get, '/api/v1/followings/sleeping_time'
           result = JSON.parse(response.body)
 
-          data = user.followings.map{|u| { 'id' => u.id, 'name' => u.name, 'total_time' => u.sleep_records.sum(:sleeping_time)} }.sort_by{|data| data['total_time']}.reverse
-
-          expect(result['data']).to eq data
-
-          last_user = User.find result['data'][-1]['id']
-          last_user.sleep_records.create(start_at: 10.days.ago, end_at: 9.days.ago)
+          expect(result.count).to eq SleepRecord.count
+          expect(result.map{ |r| r['id'] }).to eq SleepRecord.all.reorder(sleeping_time: :desc).pluck(:id)
         end
         it 'only calculate pass week' do
           auth_user_api_request :get, '/api/v1/followings/sleeping_time'
           result1 = JSON.parse(response.body)
 
-          last_user = User.find result1['data'][-1]['id']
-          last_user.sleep_records.create(start_at: 20.days.ago, end_at: 10.days.ago)
+          expect(result1.count).to eq SleepRecord.count
+          expect(result1.map{ |r| r['id'] }).to eq SleepRecord.all.reorder(sleeping_time: :desc).pluck(:id)
+
+          random_user = User.order('RANDOM()').first
+          old_record = random_user.sleep_records.create(start_at: 20.days.ago, end_at: 10.days.ago)
 
           auth_user_api_request :get, '/api/v1/followings/sleeping_time'
           result2 = JSON.parse(response.body)
 
-          expect(result1['data']).to eq result2['data']
+          expect(result2.map{ |r| r['id'] }).to_not include old_record.id
         end
       end
     end

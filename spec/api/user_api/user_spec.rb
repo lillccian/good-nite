@@ -42,24 +42,24 @@ RSpec.describe UserApi::V1::Users do
       end
     end
 
-    context 'POST /api/v1/users/:id/unfollow' do
-      it 'user followed, should return 201 and user' do
+    context 'DELETE /api/v1/users/:id/unfollow' do
+      it 'user followed, should return 200 and user' do
         user1.followings << user2
 
         expect{
-          auth_user_api_request :post, "/api/v1/users/#{user2.id}/unfollow"
+          auth_user_api_request :delete, "/api/v1/users/#{user2.id}/unfollow"
         }.to change(user1.followings, :count).by(-1)
 
         result = JSON.parse(response.body)
 
-        expect(response.status).to eq(201)
+        expect(response.status).to eq(200)
         expect(result['data']['success']).to be_truthy
       end
-      it 'user not followed, should return 201 and user' do
-        auth_user_api_request :post, "/api/v1/users/#{user2.id}/unfollow"
+      it 'user not followed, should return 200 and user' do
+        auth_user_api_request :delete, "/api/v1/users/#{user2.id}/unfollow"
         result = JSON.parse(response.body)
 
-        expect(response.status).to eq(201)
+        expect(response.status).to eq(200)
         expect(result['data']['success']).to be_truthy
       end
     end

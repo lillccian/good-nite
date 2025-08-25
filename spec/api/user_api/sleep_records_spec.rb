@@ -17,15 +17,6 @@ RSpec.describe UserApi::V1::SleepRecords do
     end
   end
 
-  context 'GET /api/v1/sleep_records/ping' do
-    it 'should return 200 and Time' do
-      auth_user_api_request :get, '/api/v1/sleep_records/ping'
-
-      expect(response.status).to eq(200)
-      expect(JSON.parse(response.body)['data']['now']).to eq(now.iso8601)
-    end
-  end
-
   describe 'sleep_records api' do
     let(:params) { {} }
     let(:record) { create(:sleep_record, user: user) }
@@ -45,7 +36,7 @@ RSpec.describe UserApi::V1::SleepRecords do
 
           expect(response.status).to eq(200)
           expect(result[0]['id']).to eq SleepRecord.last.id
-          expect(result[0]['user_id']).to eq user.id
+          expect(result[0]['user']['id']).to eq user.id
           expect(result[0]['start_at']).to eq SleepRecord.last.start_at.iso8601
           expect(result[0]['end_at']).to eq SleepRecord.last.end_at.iso8601
           expect(result[0]['sleeping_time']).to eq SleepRecord.last.sleeping_time
@@ -61,7 +52,7 @@ RSpec.describe UserApi::V1::SleepRecords do
 
           expect(response.status).to eq(200)
           expect(result['id']).to eq SleepRecord.last.id
-          expect(result['user_id']).to eq user.id
+          expect(result['user']['id']).to eq user.id
           expect(result['start_at']).to eq SleepRecord.last.start_at.iso8601
           expect(result['end_at']).to eq SleepRecord.last.end_at.iso8601
           expect(result['sleeping_time']).to eq SleepRecord.last.sleeping_time
@@ -85,6 +76,8 @@ RSpec.describe UserApi::V1::SleepRecords do
         before{
           params[:start_at] = 1.day.ago
           params[:end_at]   = Time.current
+
+          new_record = create(:sleep_record, user: user)
         }
         it 'return 201, one record create' do
           expect{
@@ -96,12 +89,14 @@ RSpec.describe UserApi::V1::SleepRecords do
         it 'create new record' do
           subject
           result = JSON.parse(response.body)
+          last_record = result.last
 
-          expect(result['id']).to eq SleepRecord.last.id
-          expect(result['user_id']).to eq user.id
-          expect(result['start_at']).to eq SleepRecord.last.start_at.iso8601
-          expect(result['end_at']).to eq SleepRecord.last.end_at.iso8601
-          expect(result['sleeping_time']).to eq SleepRecord.last.sleeping_time
+          expect(result.count).to eq 2
+          expect(last_record['id']).to eq SleepRecord.last.id
+          expect(last_record['user']['id']).to eq user.id
+          expect(last_record['start_at']).to eq SleepRecord.last.start_at.iso8601
+          expect(last_record['end_at']).to eq SleepRecord.last.end_at.iso8601
+          expect(last_record['sleeping_time']).to eq SleepRecord.last.sleeping_time
         end
         it 'overlap other user records' do
           other_user.sleep_records.create(start_at: 3.hours.ago, end_at: 1.hours.ago)
