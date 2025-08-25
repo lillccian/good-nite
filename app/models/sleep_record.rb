@@ -10,6 +10,11 @@
 #  updated_at    :datetime         not null
 #  user_id       :bigint
 #
+# Indexes
+#
+#  idx_sleep_user_created_desc_cover    (user_id,created_at)
+#  idx_sleep_user_start_len_desc_cover  (user_id,start_at,sleeping_time DESC)
+#
 class SleepRecord < ApplicationRecord
   belongs_to :user
 
