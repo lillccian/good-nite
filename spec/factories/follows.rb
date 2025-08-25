@@ -10,7 +10,9 @@
 #
 # Indexes
 #
+#  index_follows_on_follower_id                   (follower_id)
 #  index_follows_on_follower_id_and_following_id  (follower_id,following_id) UNIQUE
+#  index_follows_on_following_id                  (following_id)
 #
 FactoryBot.define do
   factory :follow do
