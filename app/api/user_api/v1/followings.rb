@@ -10,19 +10,17 @@ module UserApi
         end
         get '/sleeping_time' do
           sql = <<~_SQL
-            select users.id, users.name, sum(sleep_records.sleeping_time) as total_time
-            from users
-            inner join follows on users.id = follows.following_id
-            inner join sleep_records on sleep_records.user_id = follows.following_id
+            select sleep_records.*
+            from sleep_records
+            inner join follows on sleep_records.user_id = follows.following_id
             where follows.follower_id = '#{current_user.id}' and
-                  sleep_records.start_at > '#{params[:start_at]}'
-            group by users.id, users.name
-            order by total_time DESC, users.id
+                  sleep_records.start_at >= '#{params[:start_at]}'
+            order by sleep_records.sleeping_time DESC, sleep_records.user_id
           _SQL
 
-          sql_result = ActiveRecord::Base.connection.execute(sql)
+          records = SleepRecord.find_by_sql(sql)
 
-          { data: sql_result }
+          present records, with: Entities::SleepRecord
         end
       end
     end

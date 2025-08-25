@@ -4,12 +4,7 @@ module UserApi
       resources :sleep_records do
         before { authenticate! }
 
-        desc '用來測試服務是否活著'
-        get :ping do
-          { data: { now: Time.zone.now.iso8601 } }
-        end
-
-        desc 'create sleep record'
+        desc 'create sleep record, return all sleep records'
         params do
           requires :start_at, type: DateTime, desc: 'sleep start at'
           requires :end_at,   type: DateTime, desc: 'sleep end at'
@@ -24,7 +19,8 @@ module UserApi
           record = current_user.sleep_records.new(create_attrs)
 
           if record.save
-            present record, with: Entities::SleepRecord
+            records = current_user.sleep_records
+            present records, with: Entities::SleepRecord
           else
             error!('sleep record create error', 422)
           end
