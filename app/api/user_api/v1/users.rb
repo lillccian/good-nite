@@ -16,7 +16,7 @@ module UserApi
         end
 
         desc 'unfollow user'
-        post '/:id/unfollow' do
+        delete '/:id/unfollow' do
           follow = current_user.follows.find_by(following_id: params[:id])
 
           if follow.nil?
