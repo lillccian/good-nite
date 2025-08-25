@@ -3,7 +3,7 @@ module UserApi
     module Entities
       class SleepRecord < Entities::Base
         expose :id
-        expose :user_id
+        expose :user, using: Entities::User
         expose :start_at, format_with: :iso8601
         expose :end_at, format_with: :iso8601
         expose :sleeping_time
