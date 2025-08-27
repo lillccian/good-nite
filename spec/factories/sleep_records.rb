@@ -19,7 +19,12 @@ FactoryBot.define do
   factory :sleep_record do
     association :user, factory: [:user]
 
-    start_at { 10.hours.ago }
-    end_at   { 1.hour.ago }
+    sequence :start_at do |n|
+      n.day.ago + 10.hours.ago
+    end
+
+    sequence :end_at do |n|
+      n.day.ago + 1.hours.ago
+    end
   end
 end

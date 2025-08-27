@@ -19,27 +19,50 @@ RSpec.describe UserApi::V1::SleepRecords do
 
   describe 'sleep_records api' do
     let(:params) { {} }
-    let(:record) { create(:sleep_record, user: user) }
+    let(:records) { create_list(:sleep_record, 3, user: user) }
+    let(:record) { records.last }
 
     context 'get /api/v1/sleep_records' do
       context 'success' do
         it 'get records data, but empty' do
           auth_user_api_request :get, '/api/v1/sleep_records'
-          result = JSON.parse(response.body)
+          result = JSON.parse(response.body)['data']
 
           expect(response.status).to eq(200)
         end
-        it 'get record data' do
-          record
+        it 'get records data' do
+          records
           auth_user_api_request :get, '/api/v1/sleep_records'
           result = JSON.parse(response.body)
+          data = result['data']
 
           expect(response.status).to eq(200)
-          expect(result[0]['id']).to eq SleepRecord.last.id
-          expect(result[0]['user']['id']).to eq user.id
-          expect(result[0]['start_at']).to eq SleepRecord.last.start_at.iso8601
-          expect(result[0]['end_at']).to eq SleepRecord.last.end_at.iso8601
-          expect(result[0]['sleeping_time']).to eq SleepRecord.last.sleeping_time
+
+          expect(data[0]['id']).to eq SleepRecord.first.id
+          expect(data[0]['user']['id']).to eq user.id
+          expect(data[0]['start_at']).to eq SleepRecord.first.start_at.iso8601
+          expect(data[0]['end_at']).to eq SleepRecord.first.end_at.iso8601
+          expect(data[0]['sleeping_time']).to eq SleepRecord.first.sleeping_time
+
+          expect(result['pagination']['current_page']).to eq 1
+          expect(result['pagination']['per_page']).to eq 50
+          expect(result['pagination']['total_pages']).to eq 1
+          expect(result['pagination']['total_count']).to eq SleepRecord.count
+        end
+        it 'get records data with pagination' do
+          records
+          auth_user_api_request :get, '/api/v1/sleep_records', params: { page: 3,  per_page: 1 }
+          result = JSON.parse(response.body)
+          data = result['data']
+
+          expect(response.status).to eq(200)
+
+          expect(data[0]['id']).to eq SleepRecord.last.id
+
+          expect(result['pagination']['current_page']).to eq 3
+          expect(result['pagination']['per_page']).to eq 1
+          expect(result['pagination']['total_pages']).to eq SleepRecord.count
+          expect(result['pagination']['total_count']).to eq SleepRecord.count
         end
       end
     end
@@ -51,11 +74,11 @@ RSpec.describe UserApi::V1::SleepRecords do
           result = JSON.parse(response.body)
 
           expect(response.status).to eq(200)
-          expect(result['id']).to eq SleepRecord.last.id
+          expect(result['id']).to eq record.id
           expect(result['user']['id']).to eq user.id
-          expect(result['start_at']).to eq SleepRecord.last.start_at.iso8601
-          expect(result['end_at']).to eq SleepRecord.last.end_at.iso8601
-          expect(result['sleeping_time']).to eq SleepRecord.last.sleeping_time
+          expect(result['start_at']).to eq record.start_at.iso8601
+          expect(result['end_at']).to eq record.end_at.iso8601
+          expect(result['sleeping_time']).to eq record.sleeping_time
         end
       end
       context 'failed' do
@@ -86,10 +109,11 @@ RSpec.describe UserApi::V1::SleepRecords do
 
           expect(response.status).to eq(201)
         end
-        it 'create new record' do
+        it 'create new record, return data with pagination' do
           subject
           result = JSON.parse(response.body)
-          last_record = result.last
+          data = result['data']
+          last_record = data.last
 
           expect(result.count).to eq 2
           expect(last_record['id']).to eq SleepRecord.last.id
@@ -97,6 +121,25 @@ RSpec.describe UserApi::V1::SleepRecords do
           expect(last_record['start_at']).to eq SleepRecord.last.start_at.iso8601
           expect(last_record['end_at']).to eq SleepRecord.last.end_at.iso8601
           expect(last_record['sleeping_time']).to eq SleepRecord.last.sleeping_time
+
+          expect(result['pagination']['current_page']).to eq 1
+          expect(result['pagination']['per_page']).to eq 50
+          expect(result['pagination']['total_pages']).to eq 1
+          expect(result['pagination']['total_count']).to eq SleepRecord.count
+        end
+        it 'create new record, return data with pagination, current page should be 1' do
+          params[:page] = 2
+          params[:per_page] = 1
+
+          subject
+          result = JSON.parse(response.body)
+          data = result['data']
+          last_record = data.last
+
+          expect(result.count).to eq 2
+
+          expect(result['pagination']['current_page']).to eq 1
+          expect(result['pagination']['per_page']).to eq 1
         end
         it 'overlap other user records' do
           other_user.sleep_records.create(start_at: 3.hours.ago, end_at: 1.hours.ago)
