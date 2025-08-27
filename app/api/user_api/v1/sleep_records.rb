@@ -2,12 +2,16 @@ module UserApi
   module V1
     class SleepRecords < Grape::API
       resources :sleep_records do
+        helpers SharedParamsHelper
+
         before { authenticate! }
 
         desc 'create sleep record, return all sleep records'
         params do
           requires :start_at, type: DateTime, desc: 'sleep start at'
           requires :end_at,   type: DateTime, desc: 'sleep end at'
+
+          use :pagination
         end
         post '/' do
           if current_user.sleep_records.overlap(params[:start_at])
@@ -20,17 +24,21 @@ module UserApi
 
           if record.save
             records = current_user.sleep_records
-            present records, with: Entities::SleepRecord
+            # only return first page data
+            present_with_pagy :data, pagy(records, page: 1, items: params[:per_page]), with: Entities::SleepRecord
           else
             error!('sleep record create error', 422)
           end
         end
 
         desc 'get sleep records'
+        params do
+          use :pagination
+        end
         get '/' do
           records = current_user.sleep_records
 
-          present records, with: Entities::SleepRecord
+          present_with_pagy :data, pagy(records, page: params[:page], items: params[:per_page]), with: Entities::SleepRecord
         end
 
         desc 'get sleep record'
