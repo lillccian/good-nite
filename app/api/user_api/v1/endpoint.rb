@@ -9,6 +9,7 @@ module UserApi
       use Auth::Middleware
 
       helpers Helpers
+      helpers Grape::Pagy::Helpers
 
       desc '用來測試服務是否活著'
       get :ping do
